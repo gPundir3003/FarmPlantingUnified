@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ crop.name }} - Details</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f1fff1;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .container img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #2e8b57;
+            margin-bottom: 10px;
+        }
+
+        .info {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        .info strong {
+            display: inline-block;
+            width: 160px;
+            color: #333;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            text-decoration: none;
+            color: #2e8b57;
+            font-weight: bold;
+            border: 1px solid #2e8b57;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #2e8b57;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="{{ crop.clipart.url }}" alt="{{ crop.name }}">
+        <h1>{{ crop.name }}</h1>
+
+        <div class="info">
+            <p><strong>Type:</strong> {{ crop.type }}</p>
+            <p><strong>Uses:</strong> {{ crop.uses }}</p>
+            <p><strong>Growing Regions:</strong> {{ crop.growing_regions }}</p>
+            <p><strong>Climate:</strong> {{ crop.climate }}</p>
+            <p><strong>Harvest Time:</strong> {{ crop.harvest_time }}</p>
+            <p><strong>Water Needs:</strong> {{ crop.water_needs }}</p>
+            <p><strong>Sunlight:</strong> {{ crop.sunlight }}</p>
+        </div>
+
+        <a href="{% url 'crop_list' %}" class="back-link">← Back to Crop Database</a>
+    </div>
+</body>
+</html>
