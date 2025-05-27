@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="calendar-wrapper">
+  <!-- Mini Calendar Sidebar -->
+  <div class="mini-calendar">
+    <h3>{{ month_name }} {{ year }}</h3>
+    <div class="mini-day-headers">
+      {% for day in day_headers %}
+        <div class="mini-day-header">{{ day }}</div>
+      {% endfor %}
+    </div>
+    <div class="mini-calendar-dates">
+      {% for week in mini_calendar_dates %}
+        <div class="mini-week-row">
+          {% for day in week %}
+            <div class="mini-day-box {% if day == today %}today{% endif %}">
+              {{ day.day }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Full Calendar Grid -->
+  <div class="calendar-container">
+    <div class="calendar-header">
+      <h2>{{ week_range }}</h2>
+      <div class="days-row">
+        {% for day in week_days %}
+          <div class="day-column-header {% if day.date == today %}today{% endif %}">
+            <strong>{{ day.name }}</strong><br>
+            {{ day.date|date:"d M" }}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="calendar-grid">
+      <div class="time-column">
+        {% for hour in hours %}
+          <div class="time-slot">{{ hour }}</div>
+        {% endfor %}
+      </div>
+
+      {% for day in week_days %}
+        <div class="day-column">
+          {% for event in day.events %}
+            <div class="event-block" style="top: {{ event.top }}px; height: {{ event.height }}px; background-color: {{ event.color }};">
+              <strong>{{ event.title }}</strong><br>
+              <small>{{ event.start_time }} - {{ event.end_time }}</small>
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+.calendar-wrapper {
+  display: flex;
+  gap: 30px;
+  padding: 30px;
+}
+
+/* Mini calendar */
+.mini-calendar {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 260px;
+  text-align: center;
+}
+
+.mini-day-headers {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.mini-day-header {
+  width: 32px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.mini-calendar-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.mini-week-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.mini-day-box {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+}
+
+.mini-day-box.today {
+  background-color: #4b8f4b;
+  color: white;
+  font-weight: bold;
+}
+
+/* Full calendar grid */
+.calendar-container {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.days-row {
+  display: flex;
+  justify-content: space-around;
+}
+
+.day-column-header {
+  width: 120px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.day-column-header.today {
+  background: #e3f2fd;
+  border-radius: 10px;
+  padding: 5px 0;
+}
+
+.calendar-grid {
+  display: flex;
+  position: relative;
+}
+
+.time-column {
+  width: 60px;
+  border-right: 1px solid #ccc;
+}
+
+.time-slot {
+  height: 60px;
+  font-size: 12px;
+  text-align: right;
+  padding-right: 10px;
+  line-height: 60px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.day-column {
+  flex: 1;
+  border-left: 1px solid #ccc;
+  position: relative;
+}
+
+.event-block {
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  color: #fff;
+  padding: 5px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+</style>
+
+{% endblock %}

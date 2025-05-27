@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width: 600px; margin: auto;">
+  <h2>Edit Your Profile</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" style="padding: 10px 20px; background: green; color: white; border-radius: 8px;">
+      Save Changes
+    </button>
+  </form>
+</div>
+{% endblock %}

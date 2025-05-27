@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="weather-card">
+  <h2>{{ city }}, {{ country }} (Weather App)</h2>
+  <p>{{ date }}</p>
+
+  <div class="current-weather">
+    <h1>{{ temperature }}°C</h1>
+    <img src="http://openweathermap.org/img/wn/{{ icon }}@2x.png" alt="{{ description }}">
+    <p class="desc">{{ description }}<br><small>Feels like: {{ feels_like }}°C</small></p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="details">
+    <div><strong>High/Low</strong><br>{{ temp_max }}°C / {{ temp_min }}°C</div>
+    <div><strong>Humidity</strong><br>{{ humidity }}%</div>
+    <div><strong>Wind</strong><br>{{ wind }} m/s</div>
+  </div>
+
+  <h3>5-Day Forecast</h3>
+  <div class="forecast-row">
+    {% for day in forecast %}
+      <div class="forecast-card">
+        <p><strong>{{ day.day }}</strong></p>
+        <img src="http://openweathermap.org/img/wn/{{ day.icon }}@2x.png" width="40" alt="{{ day.description }}">
+        <p>{{ day.temp_max }}° / {{ day.temp_min }}°</p>
+        <small>{{ day.description }}</small>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+body {
+  background-color: #f3f8f3;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+}
+
+.weather-card {
+  background: white;
+  width: 95%;
+  max-width: 550px;
+  margin: 30px auto;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.weather-card h2 {
+  color: #2e8b57;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.weather-card p {
+  margin: 4px 0;
+  color: #333;
+}
+
+.current-weather {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.current-weather h1 {
+  font-size: 52px;
+  color: #2e8b57;
+}
+
+.current-weather .desc {
+  font-size: 16px;
+  color: #555;
+}
+
+.divider {
+  margin: 20px auto;
+  border-top: 1px solid #ccc;
+  width: 90%;
+}
+
+.details {
+  display: flex;
+  justify-content: space-around;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+h3 {
+  color: #2e8b57;
+  margin-top: 10px;
+}
+
+.forecast-row {
+  display: flex;
+  justify-content: space-between;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.forecast-card {
+  min-width: 80px;
+  background: #d0e8d0;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 12px;
+  color: #2e4e30;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+</style>
+
+{% endblock %}
