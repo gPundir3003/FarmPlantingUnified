@@ -1,8 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../globals.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
+
+  void _logout(BuildContext context) async {
+    final storage = FlutterSecureStorage();
+
+    await storage.delete(key: 'access');
+    await storage.delete(key: 'refresh');
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Logged out successfully")),
+    );
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/login',
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,23 +113,11 @@ class SettingsPage extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // ✅ Log out button
+          /// ✅ Secure Log Out Button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 100.0),
             child: ElevatedButton(
-              onPressed: () {
-                // Show confirmation and log out
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Logging out...")),
-                );
-
-                // Navigate to login and remove all previous routes
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
-                  (route) => false,
-                );
-              },
+              onPressed: () => _logout(context),
               child: const Text("Log out"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red[400],

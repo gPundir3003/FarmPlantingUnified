@@ -1,8 +1,51 @@
-// login_page.dart
 import 'package:flutter/material.dart';
+import 'package:farmapp/services/auth_service.dart'; // make sure this path matches your structure
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  void _login() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final authService = AuthService();
+    final success = await authService.login(
+      emailController.text.trim(),
+      passwordController.text.trim(),
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (success) {
+      Navigator.pushReplacementNamed(context, '/'); // Home route
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Login Failed"),
+          content: const Text("Invalid credentials. Please try again."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            )
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,21 +56,6 @@ class LoginScreen extends StatelessWidget {
             Stack(
               children: [
                 Image.asset('assets/farm.jpg'),
-                Positioned(
-                  bottom: 16,
-                  left: 16,
-                  child: Text(
-                    '', // Remove title text over image
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(blurRadius: 10, color: Colors.black45, offset: Offset(2, 2)),
-                      ],
-                    ),
-                  ),
-                ),
               ],
             ),
             Padding(
@@ -35,14 +63,17 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-              
                   const Text('Get Started', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
-                  const TextField(decoration: InputDecoration(hintText: 'Email Address')),
+                  TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(hintText: 'Email Address'),
+                  ),
                   const SizedBox(height: 16),
-                  const TextField(
+                  TextField(
+                    controller: passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(hintText: 'Password'),
+                    decoration: const InputDecoration(hintText: 'Password'),
                   ),
                   const SizedBox(height: 8),
                   const Align(
@@ -51,16 +82,24 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {
-                      // Navigate to home page after login
-                      print("Login button pressed");
-                      Navigator.pushReplacementNamed(context, '/');
-                    },
+                    onPressed: _isLoading ? null : _login,
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                    child: const Text('Login'),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('Login'),
                   ),
                   const SizedBox(height: 10),
-                  const Center(child: Text("Not a member? Register now", style: TextStyle(color: Colors.blue))),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/signup'); // Your sign-up route
+                    },
+                    child: const Center(
+                      child: Text(
+                        "Not a member? Register now",
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   const Center(child: Text('Or continue with')),
                   const SizedBox(height: 10),
@@ -77,49 +116,6 @@ class LoginScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SignUpScreen extends StatelessWidget {
-  const SignUpScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sign Up'), backgroundColor: Colors.white, foregroundColor: Colors.black),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('Sign Up', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            const TextField(decoration: InputDecoration(hintText: 'Add name')),
-            const SizedBox(height: 16),
-            const TextField(decoration: InputDecoration(hintText: 'name@email.com')),
-            const SizedBox(height: 16),
-            const TextField(
-              obscureText: true,
-              decoration: InputDecoration(hintText: 'Create a password', suffixIcon: Icon(Icons.visibility_off)),
-            ),
-            const SizedBox(height: 16),
-            const TextField(
-              obscureText: true,
-              decoration: InputDecoration(hintText: 'Confirm password', suffixIcon: Icon(Icons.visibility_off)),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Implement sign-up functionality
-                print("Sign Up button pressed");
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text('Login'),
-            )
           ],
         ),
       ),

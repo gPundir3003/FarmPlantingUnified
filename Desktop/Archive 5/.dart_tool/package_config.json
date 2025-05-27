@@ -87,7 +87,7 @@
     },
     {
       "name": "flutter",
-      "rootUri": "file:///Users/lim/Desktop/flutter/packages/flutter",
+      "rootUri": "file:///Users/lim/development/flutter/packages/flutter",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -110,14 +110,50 @@
       "languageVersion": "3.6"
     },
     {
+      "name": "flutter_secure_storage",
+      "rootUri": "file:///Users/lim/.pub-cache/hosted/pub.dev/flutter_secure_storage-8.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_secure_storage_linux",
+      "rootUri": "file:///Users/lim/.pub-cache/hosted/pub.dev/flutter_secure_storage_linux-1.2.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_secure_storage_macos",
+      "rootUri": "file:///Users/lim/.pub-cache/hosted/pub.dev/flutter_secure_storage_macos-3.1.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_secure_storage_platform_interface",
+      "rootUri": "file:///Users/lim/.pub-cache/hosted/pub.dev/flutter_secure_storage_platform_interface-1.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_secure_storage_web",
+      "rootUri": "file:///Users/lim/.pub-cache/hosted/pub.dev/flutter_secure_storage_web-1.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_secure_storage_windows",
+      "rootUri": "file:///Users/lim/.pub-cache/hosted/pub.dev/flutter_secure_storage_windows-2.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter_test",
-      "rootUri": "file:///Users/lim/Desktop/flutter/packages/flutter_test",
+      "rootUri": "file:///Users/lim/development/flutter/packages/flutter_test",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
     {
       "name": "flutter_web_plugins",
-      "rootUri": "file:///Users/lim/Desktop/flutter/packages/flutter_web_plugins",
+      "rootUri": "file:///Users/lim/development/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -186,6 +222,12 @@
       "rootUri": "file:///Users/lim/.pub-cache/hosted/pub.dev/intl-0.20.2",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "js",
+      "rootUri": "file:///Users/lim/.pub-cache/hosted/pub.dev/js-0.6.7",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
     },
     {
       "name": "latlong2",
@@ -351,7 +393,7 @@
     },
     {
       "name": "sky_engine",
-      "rootUri": "file:///Users/lim/Desktop/flutter/bin/cache/pkg/sky_engine",
+      "rootUri": "file:///Users/lim/development/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -440,10 +482,10 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2025-05-25T05:28:09.899464Z",
+  "generated": "2025-05-27T08:13:50.553039Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
-  "flutterRoot": "file:///Users/lim/Desktop/flutter",
+  "flutterRoot": "file:///Users/lim/development/flutter",
   "flutterVersion": "3.29.3",
   "pubCache": "file:///Users/lim/.pub-cache"
 }

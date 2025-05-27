@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'screens/home_page.dart';
 import 'screens/map_page.dart';
@@ -13,11 +14,22 @@ import 'screens/mapping.dart';
 import 'screens/login_page.dart';
 import 'screens/signup_page.dart';
 
-void main() {
-  runApp(OrefoxApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Check for existing JWT access token
+  final storage = FlutterSecureStorage();
+  final token = await storage.read(key: 'access');
+  final initialRoute = token != null ? '/' : '/login';
+
+  runApp(OrefoxApp(initialRoute: initialRoute));
 }
 
 class OrefoxApp extends StatelessWidget {
+  final String initialRoute;
+
+  const OrefoxApp({super.key, required this.initialRoute});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,15 +63,11 @@ class OrefoxApp extends StatelessWidget {
           ),
         ),
       ),
-
-      /// 👇 Start the app at the Login screen
-      initialRoute: '/login',
-
-      /// 👇 Define all named routes
+      initialRoute: initialRoute,
       routes: {
-        '/login': (ctx) => LoginScreen(),
-        '/signup': (ctx) => SignUpScreen(),
         '/': (ctx) => HomePage(),
+        '/login': (ctx) => const LoginScreen(),
+        '/signup': (ctx) => const SignUpScreen(),
         '/map': (ctx) => MapPage(),
         '/mapping': (ctx) => MappingPage(),
         '/tasks': (ctx) => TaskPage(),
