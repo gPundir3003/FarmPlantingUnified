@@ -58,6 +58,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',
             ],
         },
     },
@@ -125,3 +126,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 LOGOUT_REDIRECT_URL = '/'
 OPENWEATHER_API_KEY = config('OPENWEATHER_API_KEY')
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/login/'

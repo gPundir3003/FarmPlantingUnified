@@ -7,6 +7,10 @@ from django.conf.urls.static import static
 from main.views import profile_view
 
 urlpatterns = [
+    path('main/', include('main.urls')),
+    path('', views.LandingPage, name='LandingPage'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
     path('', include('main.urls')),
     path('admin/', admin.site.urls),
     path('', views.LandingPage, name='LandingPage'),  

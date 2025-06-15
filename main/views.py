@@ -23,6 +23,7 @@ from calendar import Calendar
 from calendar import monthrange
 from datetime import date
 import calendar
+from django.contrib.auth.views import LoginView
 
 load_dotenv("./env")
 client = OpenAI(
@@ -148,6 +149,23 @@ def LandingPage(request):
 def profile_view(request):
     return render(request, 'profile.html')
 
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            return redirect('dashboard')  # default fallback
+        else:
+            return render(request, 'index.html', {'error': 'Invalid username or password'})
+
+    return render(request, 'index.html')
+
 def logout_view(request):
     logout(request)
     return redirect('login')  
@@ -249,21 +267,19 @@ def weather_view(request):
 
 def calendar_view(request):
     today = date.today()
-    current_year = today.year
-    current_month = today.month
+    year, month = today.year, today.month
 
-    # Get all days in the current month, organized by weeks
-    month_calendar = calendar.Calendar(firstweekday=0).monthdatescalendar(current_year, current_month)
+    # Get month calendar as a list of weeks (each week is a list of 7 ints)
+    cal = calendar.Calendar(firstweekday=0)
+    month_days = cal.monthdayscalendar(year, month)
 
-    day_headers = "Mo Tu We Th Fr Sa Su".split()
+    day_headers = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
 
     context = {
-        'today': today,
-        'month_name': today.strftime('%B'),
-        'year': current_year,
+        'current_month': today.strftime("%B %Y"),
+        'calendar_data': month_days,
         'day_headers': day_headers,
-        'mini_calendar_dates': month_calendar,
-        # ... add anything else your main calendar view needs
+        'today': today.day
     }
 
     return render(request, 'calendar.html', context)
