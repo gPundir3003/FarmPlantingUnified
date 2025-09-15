@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<!-- ✅ Top Bar (same as Dashboard) -->
+<div class="top-bar">
+  <h2>Weather</h2>
+  <div class="notification-wrapper">
+    <a href="{% url 'notifications' %}">
+      <img src="{% static 'images/bell_icon.png' %}" alt="Notifications" style="width:28px;height:28px;">
+      {% if unread_notifications > 0 %}
+        <span class="notification-dot"></span>
+      {% endif %}
+    </a>
+    <a href="{% url 'profile' %}">
+      <img src="{% static 'images/profile_icon.png' %}" alt="Profile" style="cursor: pointer;">
+    </a>
+  </div>
+</div>
+
+<div class="weather-card">
+  <h2>{{ city }}, {{ country }} (Weather App)</h2>
+  <p>{{ date }}</p>
+
+  <div class="current-weather">
+    <h1>{{ temperature }}°C</h1>
+    <img src="http://openweathermap.org/img/wn/{{ icon }}@2x.png" alt="{{ description }}">
+    <p class="desc">{{ description }}<br><small>Feels like: {{ feels_like }}°C</small></p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="details">
+    <div><strong>High/Low</strong><br>{{ temp_max }}°C / {{ temp_min }}°C</div>
+    <div><strong>Humidity</strong><br>{{ humidity }}%</div>
+    <div><strong>Wind</strong><br>{{ wind }} m/s</div>
+  </div>
+
+  <h3>5-Day Forecast</h3>
+  <div class="forecast-row">
+    {% for day in forecast %}
+      <div class="forecast-card">
+        <p><strong>{{ day.day }}</strong></p>
+        <img src="http://openweathermap.org/img/wn/{{ day.icon }}@2x.png" width="40" alt="{{ day.description }}">
+        <p>{{ day.temp_max }}° / {{ day.temp_min }}°</p>
+        <small>{{ day.description }}</small>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ✅ Bottom Nav (same as Dashboard) -->
+<div class="bottom-nav">
+  <a href="{% url 'dashboard' %}"><img src="{% static 'images/home_icon.png' %}" alt="Home"></a>
+  <a href="{% url 'layout_planning' %}"><img src="{% static 'images/maps_icon.jpeg' %}" alt="Plot"></a>
+  <a href="{% url 'crop_list' %}"><img src="{% static 'images/plants_icon.png' %}" alt="Crops"></a>
+  <a href="{% url 'calendar' %}"><img src="{% static 'images/calender_icon.jpg' %}" alt="Calendar"></a>
+  <a href="{% url 'weather' %}"><img src="{% static 'images/weather.png' %}" alt="Weather" style="width: 28px; height: 28px;" /></a>
+</div>
+
+<style>
+.top-bar {
+  background-color: #d0e8d0;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  position: relative;
+}
+
+.top-bar h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2e8b57;
+  margin: 0;
+}
+
+.notification-wrapper {
+  position: absolute;
+  right: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.notification-wrapper img {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  object-fit: contain;
+}
+
+.notification-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  background: red;
+  border-radius: 50%;
+}
+
+/* Bottom nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;   /* ✅ vertically center icons like top-bar */
+  padding: 10px 0;       /* make it same as top-bar */
+  background: #d0e8d0;
+  border-top: 1px solid #ccc;
+  height: 48px;          /* ✅ force same thickness as top bar */
+}
+
+.bottom-nav img {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  object-fit: contain;
+}
+
+
+/* Body + weather card */
+body {
+  background-color: #f3f8f3;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+}
+
+body {
+  background-color: #f3f8f3;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+}
+
+.weather-card {
+  background: white;
+  width: 95%;
+  max-width: 550px;
+  margin: 30px auto;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.weather-card h2 {
+  color: #2e8b57;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.weather-card p {
+  margin: 4px 0;
+  color: #333;
+}
+
+.current-weather {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.current-weather h1 {
+  font-size: 52px;
+  color: #2e8b57;
+}
+
+.current-weather .desc {
+  font-size: 16px;
+  color: #555;
+}
+
+.divider {
+  margin: 20px auto;
+  border-top: 1px solid #ccc;
+  width: 90%;
+}
+
+.details {
+  display: flex;
+  justify-content: space-around;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+h3 {
+  color: #2e8b57;
+  margin-top: 10px;
+}
+
+.forecast-row {
+  display: flex;
+  justify-content: space-between;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.forecast-card {
+  min-width: 80px;
+  background: #d0e8d0;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 12px;
+  color: #2e4e30;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+</style>
+
+{% endblock %}

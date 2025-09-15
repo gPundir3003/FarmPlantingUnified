@@ -1,0 +1,250 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FarmPlanting Dashboard</title>
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js" defer></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            background-color: #f3f8f3;
+        }
+
+        .top-bar {
+            background-color: #d0e8d0;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            position: relative;
+        }
+
+        .top-bar h2 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e8b57;
+            margin: 0;
+        }
+
+        .top-icons {
+            position: absolute;
+            right: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .top-icons img,
+        .bottom-nav img {
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            object-fit: contain;
+        }
+
+        .section {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #2e8b57;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card img {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .crop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .crop-item {
+            text-align: center;
+        }
+
+        .crop-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background: #d0e8d0;
+            border-top: 1px solid #ccc;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button[type="submit"] {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #2e8b57;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        #ai-response {
+            margin-top: 15px;
+            font-style: italic;
+            color: #333;
+        }
+
+        #map-preview {
+            height: 200px;
+            border-radius: 8px;
+        }
+
+        #location-text {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <h2>Dashboard</h2>
+    <div class="top-icons">
+        <a href="#"><img src="{% static 'images/bell_icon.png' %}" alt="Notifications"></a>
+        <a href="#"><img src="{% static 'images/profile_icon.png' %}" alt="Profile"></a>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-title">My Plot</div>
+    <div class="card" onclick="window.location.href='{% url 'layout_planning' %}'">
+        <div id="map-preview"></div>
+        <p id="location-text"></p>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-title">Crop & Field Management</div>
+    <div class="card crop-grid">
+        {% for crop in user_crops %}
+        <div class="crop-item">
+            <img src="{{ crop.clipart.url }}" alt="{{ crop.name }}">
+            <p><strong>{{ crop.name }}</strong><br>{{ crop.harvest_time }}</p>
+        </div>
+        {% empty %}
+        <p>No crops added yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-title">Task Management</div>
+    <div class="card">
+        {% for task in tasks %}
+            <p>✏️ {{ task.description }}</p>
+        {% empty %}
+            <p>No tasks available.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-title">AI Crop Assistant</div>
+    <div class="card">
+        <form id="ai-form">
+            <textarea id="user-question" rows="3" placeholder="Ask about your crops..."></textarea>
+            <button type="submit">Get Advice</button>
+        </form>
+        <div id="ai-response"></div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <a href="{% url 'dashboard' %}"><img src="{% static 'images/home.png' %}" alt="Home"></a>
+    <a href="{% url 'layout_planning' %}"><img src="{% static 'images/layout_planning.png' %}" alt="Plot"></a>
+    <a href="{% url 'crop_list' %}"><img src="{% static 'images/stats.png' %}" alt="Crops"></a>
+    <a href="{% url 'calendar' %}"><img src="{% static 'images/calendar.png' %}" alt="Calendar"></a>
+</div>
+
+<script>
+document.getElementById('ai-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const question = document.getElementById('user-question').value;
+    const answerDiv = document.getElementById('ai-response');
+    answerDiv.innerText = 'Thinking...';
+
+    fetch('/ai-assistant/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({ message: question })
+    })
+    .then(response => response.json())
+    .then(data => {
+        answerDiv.innerText = data.response;
+    })
+    .catch(error => {
+        console.error('AI error:', error);
+        answerDiv.innerText = 'Error talking to the assistant.';
+    });
+});
+
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+
+        var map = L.map('map-preview').setView([lat, lon], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        L.marker([lat, lon]).addTo(map);
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+            .then(response => response.json())
+            .then(data => {
+                const address = data.display_name;
+                document.getElementById('location-text').innerText = `📍 ${address}`;
+            })
+            .catch(err => {
+                document.getElementById('location-text').innerText = `📍 Coordinates: ${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+            });
+    }, function() {
+        document.getElementById('location-text').innerText = "Location access denied.";
+    });
+} else {
+    document.getElementById('location-text').innerText = "Geolocation not supported.";
+}
+</script>
+
+</body>
+</html>

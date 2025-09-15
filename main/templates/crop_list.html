@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crop Database</title>
+    <link rel="stylesheet" href="{% static 'crop_list.css' %}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: url('{% static "images/user_crop.png" %}') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .overlay {
+            background-color: rgba(255, 255, 255, 0.5);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px 10px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: #2e8b57;
+        }
+
+        #searchBar {
+            width: 60%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .plus-circle {
+            text-decoration: none;
+            font-size: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            padding: 8px 14px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .plus-circle:hover {
+            background-color: #45a049;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 25px;
+            padding: 30px;
+            justify-items: center;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #cceccc;
+            border-radius: 12px;
+            width: 160px;
+            height: 200px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+        }
+
+        .card img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            margin: 10px 0 5px;
+        }
+
+        .card p {
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="header">
+            <h1>🌿 Crop Database</h1>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+                <input type="text" id="searchBar" onkeyup="filterCrops()" placeholder="Search crops and trees...">
+                <a href="{% url 'add_crop' %}" class="plus-circle" title="Add your crop">+</a>
+            </div>
+        </div>
+
+        <div class="grid-container" id="cropContainer">
+            {% for crop in crops %}
+            <a href="{% url 'crop_detail' crop.id %}" class="card">
+                <img src="{{ crop.clipart.url }}" alt="{{ crop.name }}">
+                <h3>{{ crop.name }}</h3>
+                <p>{{ crop.harvest_time }}</p>
+            </a>
+            {% empty %}
+            <p style="text-align:center;">No crops available.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function filterCrops() {
+            const input = document.getElementById('searchBar').value.toLowerCase();
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                card.style.display = title.includes(input) ? "block" : "none";
+            });
+        }
+    </script>
+</body>
+</html>

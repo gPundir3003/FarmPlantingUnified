@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}FarmPlanting{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .background-wrapper {
+            background-image: url('/static/images/user_crop.png'); 
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            width: 100%;
+            padding: 0;
+            margin: 0;  
+        }
+
+        /* ✅ Blur overlay */
+        .background-wrapper::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: inherit;       /* reuse background image */
+            filter: blur(6px) brightness(0.85);
+            z-index: 0;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ✅ All content stays above the blur */
+        .background-wrapper > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* DARK MODE STYLES */
+        body.dark-mode {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .background-wrapper {
+            background-blend-mode: multiply;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        body.dark-mode a,
+        body.dark-mode h1,
+        body.dark-mode h2,
+        body.dark-mode h3,
+        body.dark-mode h4,
+        body.dark-mode p,
+        body.dark-mode li,
+        body.dark-mode span {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .card,
+        body.dark-mode .container,
+        body.dark-mode .profile-card,
+        body.dark-mode .planner,
+        body.dark-mode .mini-calendar {
+            background-color: rgba(40, 40, 40, 0.8);
+            color: #e0e0e0;
+            border-color: #555;
+        }
+
+        body.dark-mode .edit-btn,
+        body.dark-mode .save-btn {
+            background-color: #446b3c;
+        }
+
+        body.dark-mode .logout-btn {
+            background-color: #c0392b;
+        }
+
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="background-wrapper">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const darkMode = localStorage.getItem("dark-mode") === "true";
+        const body = document.body;
+
+        if (darkMode) {
+            body.classList.add("dark-mode");
+        }
+
+        const toggle = document.getElementById("darkToggle");
+        if (toggle) {
+            toggle.checked = darkMode;
+            toggle.addEventListener("change", () => {
+                body.classList.toggle("dark-mode");
+                localStorage.setItem("dark-mode", toggle.checked);
+            });
+        }
+    });
+    </script>
+</body>
+</html>

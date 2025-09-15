@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- White Box Wrapper -->
+<div class="profile-wrapper">
+  <div class="profile-card">
+
+    <!-- Profile Top Banner -->
+    <div class="profile-banner">
+      <div class="profile-avatar">
+        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="avatar" class="avatar-img">
+      </div>
+      <h3 class="profile-title">Profile</h3>
+      <a href="{% url 'edit_profile' %}" class="edit-btn">Edit Profile</a>
+    </div>
+
+    <!-- Profile Settings -->
+    <div class="profile-container">
+      <div class="profile-section">
+        <h4>My Highlights</h4>
+        <ul>
+          <li>Popular</li>
+          <li>Trending</li>
+          <li>Today</li>
+        </ul>
+      </div>
+
+      <div class="profile-section">
+        <h4>My Tools</h4>
+        <ul>
+          <li>Favourites</li>
+          <li>Downloads</li>
+        </ul>
+      </div>
+
+      <div class="profile-section">
+        <h4>Preferences</h4>
+        <ul>
+          <li>Language</li>
+          <li>
+            Dark Mode
+            <label class="switch">
+              <input type="checkbox" id="darkToggle">
+              <span class="slider round"></span>
+            </label>
+          </li>
+          <li>Only Download via Wifi</li>
+        </ul>
+      </div>
+
+      <div class="profile-actions-centered">
+        <a href="{% url 'logout' %}" class="btn btn-outline-danger">Logout</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+/* Wrapper for Centering */
+.profile-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* White Card Style */
+.profile-card {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 700px;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Top Banner */
+.profile-banner {
+  background-color: #5a7750;
+  padding: 30px 0;
+  text-align: center;
+  border-radius: 16px 16px 0 0;
+  position: relative;
+}
+
+.profile-title {
+  color: #fff;
+  margin-top: 10px;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  background: #000;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-img {
+  width: 50px;
+  height: 50px;
+}
+
+.edit-btn {
+  display: inline-block;
+  background-color: #2e4630;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+/* Body Sections */
+.profile-container {
+  padding: 25px 30px;
+}
+
+.profile-section {
+  margin-bottom: 25px;
+}
+
+.profile-section h4 {
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 6px;
+  font-weight: bold;
+}
+
+.profile-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+}
+
+.profile-section li {
+  margin: 8px 0;
+}
+
+.profile-actions-centered {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+.logout-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  margin-left: 10px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #5a7750;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+body.dark-mode {
+  background-color: #121212;
+  color: white;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("darkToggle");
+  const body = document.body;
+
+  toggle.addEventListener("change", () => {
+    body.classList.toggle("dark-mode");
+  });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to FarmPlanting</title>
+    <style>
+        body {
+            margin: 0;
+            background: #e5f9e3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            flex-direction: column;
+        }
+        h1 {
+            font-size: 2em;
+            color: #2e8b57;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            animation: scaleUp 2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        @keyframes scaleUp {
+            from {transform: scale(0.8);}
+            to {transform: scale(1);}
+        }
+    </style>
+    <script>
+        setTimeout(() => {
+            window.location.href = "{% url 'landing_page' %}";
+        }, 3000);
+    </script>
+</head>
+<body>
+    <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
+    <h1>Welcome to FarmPlanting</h1>
+    <p>🌿 Growing the future, one crop at a time</p>
+</body>
+</html>
