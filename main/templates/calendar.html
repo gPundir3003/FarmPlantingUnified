@@ -1,22 +1,49 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} 
+{% load static %}
 
-<!-- Calendar View with Planner -->
-<div class="calendar-wrapper">
+{% block content %}
+<body class="calendar-page">
+
+  <!-- ✅ Top bar just like dashboard -->
+<div class="top-bar">
+  <h2>Calendar</h2>
+  <div class="notification-wrapper">
+    <a href="{% url 'notifications' %}">
+      <img src="{% static 'images/bell_icon.png' %}" alt="Notifications" style="width:28px;height:28px;">
+      {% if unread_notifications > 0 %}
+        <span class="notification-dot"></span>
+      {% endif %}
+    </a>
+    <a href="{% url 'profile' %}">
+      <img src="{% static 'images/profile_icon.png' %}" alt="Profile" style="cursor: pointer; width:28px; height:28px;">
+    </a>
+  </div>
+</div>
+
+<div class="calp-wrapper">
   <!-- Mini Calendar -->
-  <div class="mini-calendar">
-    <h4 class="month-title">{{ current_month }}</h4>
-    <div class="calendar-days">
-      {% for day in day_headers %}
-        <span class="calendar-day-header">{{ day }}</span>
-      {% endfor %}
+  <div class="calp-card mini-calendar">
+    <div class="month-nav">
+      <a class="nav-btn" href="{% url 'calendar' %}?y={{ prev_year }}&m={{ prev_month }}" aria-label="Previous month">‹</a>
+      <h4 class="month-title">{{ current_month }}</h4>
+      <a class="nav-btn" href="{% url 'calendar' %}?y={{ next_year }}&m={{ next_month }}" aria-label="Next month">›</a>
     </div>
+
+    <div class="calendar-days">
+      {% for d in day_headers %}<span class="calendar-day-header">{{ d }}</span>{% endfor %}
+    </div>
+
     <div class="calendar-dates">
       {% for week in calendar_data %}
         <div class="calendar-week">
           {% for date in week %}
             {% if date > 0 %}
-              <a href="#" class="calendar-date {% if date == today %}active{% endif %}">{{ date }}</a>
+              <button type="button"
+                      class="calendar-date {% if date == today %}active{% endif %}"
+                      data-day="{{ date }}"
+                      aria-label="Show tasks for {{ current_month }} {{ date }}">
+                {{ date }}
+              </button>
             {% else %}
               <span class="calendar-date empty"></span>
             {% endif %}
@@ -26,220 +53,392 @@
     </div>
   </div>
 
-  <!-- Planner Section -->
-  <div class="planner">
-    <h3>📝 Today's Planner
-      <button class="add-task-btn" onclick="openTaskModal()">+</button>
-    </h3>
+  <!-- Planner -->
+  <div class="calp-card planner">
+    <div class="planner-header">
+      <h3 id="planner-title"><span class="planner-emoji">📝</span> <span>Planner —</span> <span id="planner-date"></span></h3>
+      <button class="add-task-btn" type="button" id="open-add-task" title="Add task">+</button>
+    </div>
+    <hr class="planner-sep" />
     <div class="planner-section" id="planner-section">
-      <div class="task">
-        <span><strong>08:00 AM</strong> - Water plants 🌱</span>
-      </div>
-      <div class="task">
-        <span><strong>11:00 AM</strong> - Fertilizer schedule 🧪</span>
-      </div>
-      <div class="task">
-        <span><strong>02:00 PM</strong> - Check moisture levels 💧</span>
-      </div>
-      <div class="task">
-        <span><strong>05:00 PM</strong> - Field inspection 🧤</span>
-      </div>
+      <div class="task task-empty"><span>No tasks for this day yet.</span></div>
     </div>
   </div>
 </div>
 
-<!-- Modal for Adding Tasks -->
-<div id="taskModal" class="modal">
+<!-- ✅ Bottom Nav (same as Dashboard) -->
+  <div class="bottom-nav">
+    <a href="{% url 'dashboard' %}"><img src="{% static 'images/home_icon.png' %}" alt="Home"></a>
+    <a href="{% url 'layout_planning' %}"><img src="{% static 'images/maps_icon.jpeg' %}" alt="Plot"></a>
+    <a href="{% url 'crop_list' %}"><img src="{% static 'images/plants_icon.png' %}" alt="Crops"></a>
+    <a href="{% url 'calendar' %}"><img src="{% static 'images/calender_icon.jpg' %}" alt="Calendar"></a>
+    <a href="{% url 'weather' %}"><img src="{% static 'images/weather.png' %}" alt="Weather" style="width: 28px; height: 28px;" /></a>
+  </div>
+
+<!-- Pass view year/month -->
+<meta id="calendar-meta" data-year="{{ view_year|default:'' }}" data-month="{{ view_month|default:'' }}">
+
+<!-- Add Task Modal -->
+<div id="taskModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="addTaskTitle">
   <div class="modal-content">
-    <span class="close" onclick="closeTaskModal()">&times;</span>
-    <h3>Add New Task</h3>
+    <span class="close" id="close-add-task" aria-label="Close">&times;</span>
+    <h3 id="addTaskTitle">Add New Task</h3>
     <form id="taskForm">
-      <input type="text" name="time" placeholder="Time (e.g., 07:00 AM)" required>
+      <input type="text" name="time" placeholder="Time (e.g., 07:00 AM)">
       <input type="text" name="task" placeholder="Task Description" required>
+      <select name="status">
+        <option value="upcoming">Upcoming</option>
+        <option value="completed">Completed</option>
+        <option value="locked">Locked</option>
+      </select>
       <button type="submit">Add Task</button>
     </form>
   </div>
 </div>
 
+<!-- Edit Task Modal -->
+<div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editTaskTitle">
+  <div class="modal-content">
+    <span class="close" id="close-edit" aria-label="Close">&times;</span>
+    <h3 id="editTaskTitle">Edit Task</h3>
+    <form id="editForm">
+      <input type="hidden" name="id" />
+      <input type="text" name="time" placeholder="Time (e.g., 07:00 AM)">
+      <input type="text" name="task" placeholder="Task Description" required>
+      <select name="status">
+        <option value="upcoming">Upcoming</option>
+        <option value="completed">Completed</option>
+        <option value="locked">Locked</option>
+      </select>
+      <button type="submit">Save Changes</button>
+    </form>
+  </div>
+</div>
+
 <style>
-body {
-  font-family: 'Segoe UI', sans-serif;
-}
+/* Layout */
 
-.calendar-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 40px;
-  padding: 40px;
-  justify-content: center;
-}
-
-.mini-calendar {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
-  width: 300px;
-}
-
-.month-title {
-  text-align: center;
-  font-size: 20px;
-  color: #5a7750;
-  font-weight: 600;
-  margin-bottom: 15px;
-}
-
-.calendar-days,
-.calendar-week {
+.top-bar {
+  background-color: #d0e8d0;
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.calendar-day-header {
-  font-weight: 600;
-  color: #444;
-  width: 30px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.calendar-date {
-  width: 30px;
-  height: 30px;
-  font-size: 14px;
-  color: #333;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 2px;
-  border-radius: 50%;
-  text-decoration: none;
-  transition: background 0.3s;
-}
-
-.calendar-date:hover {
-  background-color: #e1ebdf;
-  color: #5a7750;
-}
-
-.calendar-date.active {
-  background-color: #5a7750;
-  color: white;
-  font-weight: bold;
-}
-
-.calendar-date.empty {
-  visibility: hidden;
-}
-
-.planner {
-  flex: 1;
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
-  min-width: 300px;
-}
-
-.planner h3 {
-  font-size: 20px;
-  color: #5a7750;
-  margin-bottom: 20px;
   border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
+  position: relative;
+}
+
+.top-bar h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2e8b57;
+  margin: 0;
+}
+
+.notification-wrapper {
+  position: absolute;
+  right: 20px;
   display: flex;
-  justify-content: space-between;
+  gap: 16px;
   align-items: center;
 }
 
-.planner-section .task {
-  background: #f8f8f8;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  border-left: 5px solid #5a7750;
-  border-radius: 10px;
-  font-size: 14px;
-  color: #333;
+.notification-wrapper img {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  object-fit: contain;
 }
 
-.add-task-btn {
-  background-color: #5a7750;
-  color: white;
-  border: none;
-  font-size: 20px;
+.notification-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  background: red;
   border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
 }
-
-/* Modal Styles */
-.modal {
-  display: none;
+.bottom-nav {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.4);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;   /* ✅ vertically center icons like top-bar */
+  padding: 10px 0;       /* make it same as top-bar */
+  background: #d0e8d0;
+  border-top: 1px solid #ccc;
+  height: 48px;          /* ✅ force same thickness as top bar */
 }
 
-.modal-content {
-  background: white;
+.bottom-nav img {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  object-fit: contain;
+}
+
+.calp-wrapper {
+  max-width: 1150px;
+  margin: 36px auto;
+  padding: 0 16px;
+  display: flex;
+  gap: 36px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.calp-card {
+  background: #fff;
+  border-radius: 12px; /* match dashboard cards */
+  box-shadow: 0 2px 6px rgba(0,0,0,.1); /* softer shadow */
   padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  text-align: center;
 }
 
-.modal-content input {
-  width: 90%;
-  padding: 8px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+/* Blurry background effect */
+body.calendar-page {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: url("{% static 'images/background.jpg' %}") no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
 }
 
-.modal-content button {
-  background-color: #5a7750;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
+body.calendar-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: inherit;
+  filter: blur(6px) brightness(0.85);
+  z-index: -1; /* push behind all content */
 }
 
-.close {
-  float: right;
-  font-size: 20px;
-  cursor: pointer;
-  color: #999;
-}
+.mini-calendar { width: 320px; }
+.planner { flex: 1; min-width: 360px; }
+
+/* Month nav */
+.month-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;position:relative;z-index:5;}
+.month-title{flex:1;text-align:center;font-size:22px;color:#5a7750;font-weight:700;margin:0;}
+.nav-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#e9f0e6;color:#5a7750;text-decoration:none;font-size:22px;transition:background .2s;}
+.nav-btn:hover{background:#dbe7d6;}
+
+/* Calendar grid */
+.calendar-days,.calendar-week{display:flex;justify-content:space-between;margin-bottom:6px;}
+.calendar-day-header{width:30px;text-align:center;font-size:14px;font-weight:600;color:#536050;}
+.calendar-date{width:32px;height:32px;border-radius:50%;border:0;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#2f3b2d;font-size:14px;transition:background .25s,color .25s;}
+.calendar-date:hover{background:#e1ebdf;color:#5a7750;}
+.calendar-date.active{background:#5a7750;color:#fff;font-weight:700;}
+.calendar-date.empty{visibility:hidden;}
+
+/* Planner */
+.planner-header{display:flex;align-items:center;gap:8px;}
+#planner-title{display:flex;align-items:center;gap:8px;margin:0;color:#435a40;}
+#planner-date{font-weight:700;}
+.planner-emoji{font-size:20px;}
+.add-task-btn{margin-left:auto;background:#5a7750;color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;transition:filter .2s;}
+.add-task-btn:hover{filter:brightness(.95);}
+.planner-sep{border:0;border-top:1px solid #edf0ec;margin:12px 0 16px;}
+
+/* Task card */
+.task{background:#f8f8f8;border-left:5px solid #5a7750;border-radius:14px;padding:12px 14px;font-size:14px;color:#333;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.task .time{font-weight:700;margin-right:6px;white-space:nowrap;}
+.task .desc{flex:1;min-width:0;}
+.task.task-empty{border-left-color:#cfd8cc;color:#666;}
+
+/* Status colours */
+.task.upcoming{background:#fffbe6;border-left-color:#ffc107;}
+.task.completed{background:#e7f5ea;border-left-color:#28a745;color:#1e6d34;}
+.task.locked{background:#fdecee;border-left-color:#dc3545;color:#7a1e26;}
+
+/* Controls */
+.task-ctrls{display:flex;align-items:center;gap:8px;}
+.status-select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background:#f5faf5;border:1px solid #d9e5d7;padding:8px 14px;border-radius:999px;font-size:14px;color:#36553d;cursor:pointer;}
+.status-select:focus{outline:none;border-color:#5a7750;box-shadow:0 0 0 3px rgba(90,119,80,.15);}
+.icon-btn{border:1px solid #e5e5e5;background:#fff;border-radius:10px;padding:7px 10px;cursor:pointer;transition:transform .06s ease,background .15s;}
+.icon-btn:hover{background:#f7faf7;}
+.icon-btn:active{transform:scale(.98);}
+.delete-task-btn:hover{background:#fff2f2}
+
+/* Modals */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.modal-content{background:#fff;border-radius:12px;padding:20px;width:320px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.2);}
+.modal-content input,.modal-content select{width:92%;padding:10px;margin:8px 0;border:1px solid #ccd2cc;border-radius:8px;}
+.modal-content button{background:#5a7750;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;}
+.close{float:right;font-size:20px;cursor:pointer;color:#777;}
 </style>
 
 <script>
-function openTaskModal() {
-  document.getElementById("taskModal").style.display = "flex";
+/* ---------- Endpoints ---------- */
+const API_ADD    = "{% url 'add_task_api' %}";
+const API_DAY    = "{% url 'tasks_by_day_api' %}";
+const API_UPDATE = "{% url 'update_task' %}";
+const API_TOGGLE = "{% url 'toggle_task' %}";
+
+/* ---------- CSRF ---------- */
+function getCookie(name){const m=document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');return m?m.pop():'';}
+const CSRF = getCookie('csrftoken');
+async function postJSON(url, payload){
+  const res = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},body:JSON.stringify(payload)});
+  if(!res.ok){console.error('POST failed',url,res.status,await res.text()); alert('Something went wrong.');}
+  return res;
 }
 
-function closeTaskModal() {
-  document.getElementById("taskModal").style.display = "none";
+/* ---------- State ---------- */
+const meta=document.getElementById('calendar-meta');
+const VIEW_Y=parseInt(meta.dataset.year||"{{ current_month|slice:'-4:' }}",10);
+const VIEW_M=parseInt(meta.dataset.month||"1",10);
+let selectedDay=null;
+
+/* status <-> notes helpers */
+const statusFromNotes = notes => { if(!notes) return 'upcoming'; const m=/status:(\w+)/.exec(notes); return m?m[1]:'upcoming'; };
+const notesForStatus  = status => `status:${status}`;
+
+/* ---------- Planner Header ---------- */
+const dateLabel=document.getElementById('planner-date');
+function setPlannerTitle(day){
+  const MONTH="{{ current_month|slice:':-5' }}", YEAR="{{ current_month|slice:'-4:' }}";
+  dateLabel.textContent = day ? `${day} ${MONTH} ${YEAR}` : `${MONTH} ${YEAR}`;
 }
 
-document.getElementById("taskForm").addEventListener("submit", function(event) {
-  event.preventDefault();
-  const time = this.time.value.trim();
-  const task = this.task.value.trim();
-  if (time && task) {
-    const taskHTML = `<div class="task"><span><strong>${time}</strong> - ${task}</span></div>`;
-    document.getElementById("planner-section").insertAdjacentHTML('beforeend', taskHTML);
-    this.reset();
-    closeTaskModal();
+/* ---------- Render ---------- */
+const plannerContainer=document.getElementById('planner-section');
+function renderTasks(tasks){
+  const keep=(tasks||[]).filter(t=>statusFromNotes(t.notes)!=='deleted');
+  if(!keep.length){ plannerContainer.innerHTML=`<div class="task task-empty"><span>No tasks for this day yet.</span></div>`; return; }
+  plannerContainer.innerHTML = keep.map(t=>{
+    const status=statusFromNotes(t.notes);
+    const sel=v=>status===v?'selected':''; 
+    const time=t.time||'', desc=t.description||'';
+    return `
+      <div class="task ${status}" data-id="${t.id}" data-time="${time.replace(/"/g,'&quot;')}" data-desc="${desc.replace(/"/g,'&quot;')}" data-status="${status}">
+        <span class="time">${time || ''}</span>
+        <span class="desc">${time ? '– ' : ''}${desc}</span>
+        <div class="task-ctrls">
+          <select class="status-select" data-id="${t.id}" aria-label="Change status">
+            <option value="upcoming" ${sel('upcoming')}>Upcoming</option>
+            <option value="completed" ${sel('completed')}>Completed</option>
+            <option value="locked" ${sel('locked')}>Locked</option>
+          </select>
+          <button class="icon-btn edit-task-btn" data-id="${t.id}" title="Edit">✏️</button>
+          <button class="icon-btn delete-task-btn" data-id="${t.id}" title="Delete">🗑️</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ---------- Load selected day ---------- */
+async function loadDay(day){
+  selectedDay=day; setPlannerTitle(day);
+  const r=await fetch(`${API_DAY}?y=${VIEW_Y}&m=${VIEW_M}&d=${day}`); const data=await r.json();
+  renderTasks(data.tasks||[]);
+}
+
+/* ---------- Mini-calendar selection ---------- */
+document.querySelectorAll('.calendar-date').forEach(btn=>{
+  if(!btn.classList.contains('empty')){
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.calendar-date').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active'); loadDay(parseInt(btn.dataset.day,10));
+    });
   }
+});
+(function initFirstDay(){
+  const active=document.querySelector('.calendar-date.active');
+  const first=document.querySelector('.calendar-date:not(.empty)');
+  const day=active?parseInt(active.dataset.day,10):(first?parseInt(first.dataset.day,10):null);
+  if(day) loadDay(day);
+})();
+
+/* ---------- Add Task modal ---------- */
+const addModal=document.getElementById('taskModal');
+document.getElementById('open-add-task').addEventListener('click',()=>{ if(!selectedDay){const a=document.querySelector('.calendar-date.active'); selectedDay=a?parseInt(a.dataset.day,10):null;} addModal.style.display='flex'; });
+document.getElementById('close-add-task').addEventListener('click',()=>addModal.style.display='none');
+window.addEventListener('click',e=>{ if(e.target===addModal) addModal.style.display='none'; });
+
+document.getElementById('taskForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(!selectedDay) return;
+  const time=e.target.time.value.trim(), desc=e.target.task.value.trim(), status=e.target.status.value||'upcoming';
+  if(!desc) return;
+
+  await postJSON(API_ADD,{year:VIEW_Y,month:VIEW_M,day:selectedDay,time,description:desc});
+  await loadDay(selectedDay);
+
+  // Match the just-created task to set status/is_done
+  const row=[...plannerContainer.querySelectorAll('.task')].find(el=>{
+    return (el.dataset.time||'')===time && (el.dataset.desc||'')===desc;
+  });
+  if(row){
+    const id=parseInt(row.dataset.id,10);
+    await postJSON(API_UPDATE,{id,notes:notesForStatus(status)});
+    await postJSON(API_TOGGLE,{id,is_done:status==='completed'});
+  }
+  await loadDay(selectedDay);
+  e.target.reset(); addModal.style.display='none';
+});
+
+/* ---------- Status change / Delete / Edit ---------- */
+plannerContainer.addEventListener('change', async e=>{
+  if(!e.target.classList.contains('status-select')) return;
+  const id=parseInt(e.target.dataset.id,10);
+  const newStatus=e.target.value;
+  await postJSON(API_UPDATE,{id,notes:notesForStatus(newStatus)});
+  await postJSON(API_TOGGLE,{id,is_done:newStatus==='completed'});
+  const row=e.target.closest('.task');
+  row.classList.remove('upcoming','completed','locked'); row.classList.add(newStatus);
+  row.dataset.status=newStatus;
+});
+
+plannerContainer.addEventListener('click', async e=>{
+  // delete
+  if(e.target.classList.contains('delete-task-btn')){
+    const id=parseInt(e.target.dataset.id,10);
+    await postJSON(API_UPDATE,{id,notes:notesForStatus('deleted')});
+    const row=e.target.closest('.task'); row.remove();
+    if(!plannerContainer.querySelector('.task')) plannerContainer.innerHTML=`<div class="task task-empty"><span>No tasks for this day yet.</span></div>`;
+    return;
+  }
+  // edit
+  if(e.target.classList.contains('edit-task-btn')){
+    const row=e.target.closest('.task');
+    openEditModal({
+      id: row.dataset.id,
+      time: row.dataset.time || '',
+      desc: row.dataset.desc || '',
+      status: row.dataset.status || 'upcoming'
+    });
+  }
+});
+
+/* ---------- Edit Modal ---------- */
+const editModal=document.getElementById('editModal');
+const editForm=document.getElementById('editForm');
+document.getElementById('close-edit').addEventListener('click',()=>editModal.style.display='none');
+window.addEventListener('click',e=>{ if(e.target===editModal) editModal.style.display='none'; });
+
+function openEditModal({id,time,desc,status}){
+  editForm.id.value=id;
+  editForm.time.value=time;
+  editForm.task.value=desc;
+  editForm.status.value=status || 'upcoming';
+  editModal.style.display='flex';
+}
+
+editForm.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const id=parseInt(editForm.id.value,10);
+  const time=editForm.time.value.trim();
+  const desc=editForm.task.value.trim();
+  const status=editForm.status.value || 'upcoming';
+  if(!id || !desc) return;
+
+  await postJSON(API_UPDATE,{id,time,description:desc,notes:notesForStatus(status)});
+  await postJSON(API_TOGGLE,{id,is_done:status==='completed'});
+
+  await loadDay(selectedDay);
+  editModal.style.display='none';
 });
 </script>
 
+</body>
 {% endblock %}

@@ -645,3 +645,83 @@ h1 {
   font-size: 2.5rem;
 }
 
+/* === Bottom tab bar refresh (forces override) === */
+:root{
+  --tabbar-bg: rgba(255,255,255,.88);
+  --tabbar-ring: rgba(46,139,87,.16);
+}
+
+/* leave room so bar doesn't cover content */
+body{ padding-bottom: 76px !important; }
+
+/* the green bar */
+.bottom-nav{
+  position: fixed !important; left: 0; right: 0; bottom: 0; z-index: 1000;
+  background: #d0e8d0 !important; border-top: 1px solid #c5dfc5 !important;
+  display: flex !important; justify-content: space-around !important; align-items: center !important;
+  height: 64px !important;
+}
+
+/* icon buttons (no white tiles) */
+.bottom-nav a{
+  --size: 48px;
+  width: var(--size) !important; height: var(--size) !important;
+  display: grid !important; place-items: center !important;
+  border-radius: 14px !important; text-decoration: none !important;
+  background: transparent !important; box-shadow: none !important; border: 0 !important;
+  transition: background .18s ease, transform .12s ease !important;
+}
+
+/* ensure no background on images */
+.bottom-nav img{
+  width: 26px !important; height: 26px !important; display: block !important;
+  background: transparent !important; box-shadow: none !important; border: 0 !important; padding: 0 !important;
+  filter: grayscale(1) opacity(.85) !important;
+  transition: filter .18s ease, transform .12s ease !important;
+}
+
+/* hover & active states */
+.bottom-nav a:hover{ background: rgba(46,139,87,.12) !important; transform: translateY(-1px) !important; }
+.bottom-nav a:active{ transform: translateY(0) !important; }
+.bottom-nav a.active{ background: rgba(46,139,87,.18) !important; box-shadow: inset 0 0 0 1px rgba(46,139,87,.18) !important; }
+.bottom-nav a:hover img, .bottom-nav a.active img{ filter: none !important; }
+
+/* small screens: slightly smaller buttons */
+@media (max-width: 420px){
+  .bottom-nav a{ --size: 44px !important; }
+  .bottom-nav img{ width: 24px !important; height: 24px !important; }
+}
+/* Bottom nav: clean, transparent icons */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  display: flex; justify-content: space-around; align-items: center;
+  padding: 10px 12px;
+  background: #d7ebd6;               /* your green bar */
+  border-top: 1px solid rgba(0,0,0,.05);
+  z-index: 50;
+}
+
+.bottom-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  background: transparent;           /* <— remove the little tile */
+  box-shadow: none;                   /* no shadow behind icons */
+  text-decoration: none;
+}
+
+.bottom-nav a:hover {
+  background: rgba(255,255,255,.18);  /* subtle hover only */
+}
+
+.bottom-nav img {
+  width: 28px; height: 28px;
+  display: block;
+  object-fit: contain;
+  background: transparent;            /* make sure image tag has no bg */
+  mix-blend-mode: darken;             /* CSS trick: white blends into bar */
+  image-rendering: -webkit-optimize-contrast;
+}
